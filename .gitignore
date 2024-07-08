@@ -31,3 +31,8 @@ codegen/
 
 # Cloud based storage dotfile
 .MATLABDriveTag
+
+*.png
+*.fig
+*.csv
+*.xlsx

@@ -29,18 +29,9 @@ if contains(InputProfile, 'PowerQualification')
     SimResults.folderName = 'QualificationLap';
     [TimeEnd, dTime,PowerInput]=MissionHelper.InputProfileProcessing(PowerQualification,timeStep);
     SOCstart           = (0.93);
-    InputPar.Racelaps=1;
-    TimeThermalStable=TimeEnd;
+    % InputPar.Racelaps=1;
 
-
-figure('Color','w')
-plot(PowerQualification.Time,-PowerQualification.PowerKW,'-','DisplayName','Given profile')
-hold on 
-xlabel('Time [s]')
-ylabel('Power [kW]')
-grid on 
-legend show
-title('Power Qualification')
+    [TimeEnd, dTime,PowerInput,TimeThermalStable]=MissionHelper.CreateMultipleLaps(PowerQualification,InputPar ); 
 
 
 else contains(InputProfile, 'PowerRace')
@@ -48,60 +39,63 @@ else contains(InputProfile, 'PowerRace')
     
     SOCstart           = (0.80);
     
-    PowerRaceTotal= [];
-    TimeEnd=0;
-
-    figure('Color','w')
-plot(PowerRace.Time,-PowerRace.PowerKW,'-','DisplayName','Given profile')
-hold on 
-plot(PowerRace.Time(idxCut),-PowerRace.PowerKW(idxCut),'*','DisplayName','Removed')
-xlabel('Time [s]')
-ylabel('Power [kW]')
-grid on 
-legend show
-title('Power Race')
+     [TimeEnd, dTime,PowerInput,TimeThermalStable]=MissionHelper.CreateMultipleLaps(PowerRace,InputPar); 
 
 
-
-    figure()
-    for idxlaps= 1:InputPar.Racelaps
-        idxlaps;
-        patchedOneLap=[]; 
-        driveCyle=[];
-        restProfile=[];
-        raceTime=[];
-
-        PowerRace= rmmissing(PowerRace);
-        raceTime= PowerRace.Time+TimeEnd;
-        Power= PowerRace.PowerKW;
-        % add the rest period between laps 
-        driveCyle= [raceTime, Power];
-
-        restAfterLap = InputPar.Racelaps_RestBetweenLaps_s;
-        restTime = [raceTime(end)+1: raceTime(end)+restAfterLap]';
-        restPower= repmat(0, length(restTime),1);
-        restProfile=[restTime, restPower];
-
-        patchedOneLap=[driveCyle; restProfile ];
-
-        PowerRaceTotal=[PowerRaceTotal; patchedOneLap];
-
-        TimeStart= patchedOneLap(1,1);
-        TimeEnd=  patchedOneLap(end,1)+0.01;
-
-        plot(patchedOneLap(:,1), patchedOneLap(:,2))
-        hold on
-    end
-     title('Power Race')
-    PowerRaceTotal=array2table(PowerRaceTotal,"VariableNames",{'Time','PowerKW'} );
-    
-    [TimeEnd, dTime,PowerInput]=MissionHelper.InputProfileProcessing(PowerRaceTotal,timeStep);
-
-    % get the time period of the thermal stablized period 
-    TimeThermalStable= max(PowerRace.Time)*(InputPar.Racelaps-InputPar.ThermalStableLaps);
-
-
-end
+%     PowerRaceTotal= [];
+%     TimeEnd=0;
+% 
+%     figure('Color','w')
+% plot(PowerRace.Time,-PowerRace.PowerKW,'-','DisplayName','Given profile')
+% hold on 
+% plot(PowerRace.Time(idxCut),-PowerRace.PowerKW(idxCut),'*','DisplayName','Removed')
+% xlabel('Time [s]')
+% ylabel('Power [kW]')
+% grid on 
+% legend show
+% title('Power Race')
+% 
+% 
+% 
+%     figure()
+%     for idxlaps= 1:InputPar.Racelaps
+%         idxlaps;
+%         patchedOneLap=[]; 
+%         driveCyle=[];
+%         restProfile=[];
+%         raceTime=[];
+% 
+%         PowerRace= rmmissing(PowerRace);
+%         raceTime= PowerRace.Time+TimeEnd;
+%         Power= PowerRace.PowerKW;
+%         % add the rest period between laps 
+%         driveCyle= [raceTime, Power];
+% 
+%         restAfterLap = InputPar.Racelaps_RestBetweenLaps_s;
+%         restTime = [raceTime(end)+1: raceTime(end)+restAfterLap]';
+%         restPower= repmat(0, length(restTime),1);
+%         restProfile=[restTime, restPower];
+% 
+%         patchedOneLap=[driveCyle; restProfile ];
+% 
+%         PowerRaceTotal=[PowerRaceTotal; patchedOneLap];
+% 
+%         TimeStart= patchedOneLap(1,1);
+%         TimeEnd=  patchedOneLap(end,1)+0.01;
+% 
+%         plot(patchedOneLap(:,1), patchedOneLap(:,2))
+%         hold on
+%     end %    for idxlaps= 1:InputPar.Racelaps
+%      title('Power Race')
+%     PowerRaceTotal=array2table(PowerRaceTotal,"VariableNames",{'Time','PowerKW'} );
+% 
+%     [TimeEnd, dTime,PowerInput]=MissionHelper.InputProfileProcessing(PowerRaceTotal,timeStep);
+% 
+%     % get the time period of the thermal stablized period 
+%     TimeThermalStable= max(PowerRace.Time)*(InputPar.Racelaps-InputPar.ThermalStableLaps);
+% 
+% 
+% end
 
 
 

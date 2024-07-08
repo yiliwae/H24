@@ -10,7 +10,7 @@ InputPar.timeStep=  0.1; % unit: s
 InputProfile= {'PowerQualification'};
 OutputfolerName= string(InputProfile);
 InputPar.Racelaps_RestBetweenLaps_s=0; %[s]
-InputPar.Racelaps=20;
+InputPar.Racelaps=2;
 
 InputPar.ThermalStableLaps=10; % use the last xx laps to get the RMS power and rejection calculation which reach to thermal stability
 
@@ -29,14 +29,14 @@ Np_option = [2];
 
 CoolantInTemp_degC= [55];
 CoolantFlowRate= [20];
-PowerFudgeFactor = [0.8:0.05:1];
+PowerFudgeFactor = [0.65:0.01:0.7];
 
 % Generate all combinations of the inputs
 combinations = combvec(Ns_option, Np_option, CoolantInTemp_degC, CoolantFlowRate, PowerFudgeFactor)';
 
 % Convert to table
 SimCaseTable = array2table(combinations, 'VariableNames', ...
-    {'Ns', 'Np', 'CoolantInTemp_degC', 'CoolantFlowRate', 'PowerFudgeFactor'});
+                                              {'Ns', 'Np', 'CoolantInTemp_degC', 'CoolantFlowRate', 'PowerFudgeFactor'});
 
 
 % load the existing simulation cases from 
@@ -141,7 +141,6 @@ resultDir= fullfile("02_SimOutput",OutputfolerName,strcat(InputProfile,"_Simulat
 % if there is already simulation cases, add it to the original one. 
 if  exist(existingSimDir, 'file') == 2
     SimResultsTable=[existSimTable; SimResultsTable];
-
 end
 
 writetable(SimResultsTable, resultDir)
