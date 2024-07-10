@@ -7,7 +7,6 @@ SimResults.Sese_packPower_kW_fd      = SimResults.Sese_packCurrent_A_fd.*SimResu
 SimResults.Sese_packPower_kW_fd      = out.Electrical.Sese_packPower_kW_fd.Data; 
 
 
-
 SimResults.Sese_packQGen_kW_fd      = out.Electrical.Sese_packQGen_kW_fd.Data; % heat generation
 SimResults.CellCurrent_A            = out.Electrical.Sese_cellCurrent_A_fd.Data;
 

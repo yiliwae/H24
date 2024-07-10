@@ -1,10 +1,11 @@
-function fig=PlotSimout_CompareTestData(fig, SimResults,InputPar,SOCstart,TestData)
+function fig=PlotSimout_CompareTestData_V2(fig, SimResults,InputPar,SOCstart,TestData)
 idxDCH =  round(SimResults.Sese_packPower_kW_fd)<0;
 idxCHA =  round(SimResults.Sese_packPower_kW_fd)>0;
 
 PowerDCH_kW= SimResults.Sese_packPower_kW_fd(idxDCH);
 PowerCHA_kW= SimResults.Sese_packPower_kW_fd(idxCHA);
 
+t = tiledlayout(4,2);
 n1=nexttile(1);
 grid on;box on;hold on
 plot(SimResults.tout,SimResults.Sese_packPower_kW_fd)
@@ -150,7 +151,7 @@ ylabel('kJ')
 ylabel('Generated Heat Power [kW]')
 
 
-n7=nexttile(7);
+n7=nexttile;
 
 plot(SimResults.tout,SimResults.Sese_coolantInletTemperature_degC_fd,'--b','DisplayName','Sim CoolantIn')
 hold on
@@ -163,7 +164,7 @@ xlabel('Time [s]')
 ylabel('Coolant Temperature [°C]')
 grid on
 legend show
-ylim([40 60])
+ylim([20 80])
 legend('Location','bestoutside')
 
 
@@ -187,6 +188,9 @@ ylabel('Generated Heat Power[kW]')
 title(sprintf('Pack heat gen: P.rms = %.2f [kW]', rms(SimResults.Sese_packQGen_kW_fd)))
 
 
+% linkaxes([n1, n2, n3, n4, n5, n6, n7, n8], 'x');
+
+
 % Using sgtitle to create a super title across all subplots
 titleStr = sprintf(['%dS%dp - SOC_{start}= %.2f [%%]; \n', ...
                     'R_{CellToCoolant-HotCell}= %.1f [K/W] -', ...
@@ -201,6 +205,9 @@ titleStr = sprintf(['%dS%dp - SOC_{start}= %.2f [%%]; \n', ...
                     round(InputPar.CoolFlowRate, 1));
 
 
+% Adjust layout
+t.TileSpacing = 'compact';
+t.Padding = 'compact';
 
 sgtitle(titleStr);
 

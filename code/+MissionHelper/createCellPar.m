@@ -12,11 +12,11 @@ CellPar.ThermalProperties.ThermalRes_CellCool_coldcell= [2]; % [K/W] thermal res
 
 
 % Cell start condition
-CellPar.InitialCon.TempAmbient         = 50;      % unit: [°C] set based on Fred email that the inlet temperature is 50degC
-CellPar.InitialCon.TempCellStart       = 50; % assumption by YL, the temperature variance is 6degC
+% CellPar.InitialCon.TempAmbient         = 55;      % unit: [°C] set based on Fred email that the inlet temperature is 50degC
+% CellPar.InitialCon.TempCellStart       = 55; % assumption by YL, the temperature variance is 6degC
 % CellPar.InitialCon.TempCellStart_Cold  = 50;
 CellPar.InitialCon.SOCImbalance        = (0.01);
-CellPar.InitialCon.TempCellImbalance   = 7;  % unit[°C] temperature imbalance
+CellPar.InitialCon.TempCellImbalance   = 5;  % unit[°C] temperature imbalance
 
 % Stop state
 stopState.HighVoltage_B = true;

@@ -1,13 +1,14 @@
-function  [TimeEnd, dTime,PowerInput,TimeThermalStable]= CreateMultipleLaps(InputPowerProfile,InputPar)
+function  [TimeEnd, dTime,PowerInput,TimeThermalStable]= CreateMultipleLapsNewName(InputPowerProfile,InputPar,InputProfileName)
 
+InputProfileName= strrep(InputProfileName, '_','-');
 figure('Color','w')
-plot(InputPowerProfile.Time,InputPowerProfile.PowerKW,'-','DisplayName','Given profile')
+plot(InputPowerProfile.Time_Seconds,InputPowerProfile.Power_kW,'-','DisplayName','Given profile')
 hold on 
-xlabel('Time [s]')
-ylabel('Power [kW]')
+xlabel('Time (s)')
+ylabel('Power (kW)')
 grid on 
 legend show
-title('Power Qualification')
+title(InputProfileName)
 
 %%
 TimeEnd=0;
@@ -23,8 +24,8 @@ fig= figure('Color','w')
         raceTime=[];
 
         InputPowerProfile= rmmissing(InputPowerProfile);
-        raceTime= InputPowerProfile.Time+TimeEnd;
-        Power= InputPowerProfile.PowerKW;
+        raceTime= InputPowerProfile.Time_Seconds+TimeEnd;
+        Power= InputPowerProfile.Power_kW;
         % add the rest period between laps 
         driveCyle= [raceTime, Power];
 
@@ -40,19 +41,19 @@ fig= figure('Color','w')
         TimeStart= patchedOneLap(1,1);
         TimeEnd=  patchedOneLap(end,1)+0.01;
 
-        plot(patchedOneLap(:,1), -patchedOneLap(:,2))
+        plot(patchedOneLap(:,1), patchedOneLap(:,2))
         hold on
         grid on 
         xlabel('Time (s)')
         ylabel('Poewr (kW)')
     end %    for idxlaps= 1:InputPar.Racelaps
-     title('Qualification lap')
-    InputPowerProfileTotal=array2table(InputPowerProfileTotal,"VariableNames",{'Time','PowerKW'} );
+     title(InputProfileName)
+    InputPowerProfileTotal=array2table(InputPowerProfileTotal,"VariableNames",{'Time_Seconds','Power_kW'} );
     
-    [TimeEnd, dTime,PowerInput]=MissionHelper.InputProfileProcessing(InputPowerProfileTotal,timeStep);
+    [TimeEnd, dTime,PowerInput]=MissionHelper.InputProfileProcessingNewName(InputPowerProfileTotal,timeStep);
 
-    % get the time period of the thermal stablized period 
-    TimeThermalStable= max(InputPowerProfile.Time)*(InputPar.Racelaps-InputPar.ThermalStableLaps);
+    % get the Time_Seconds period of the thermal stablized period 
+    TimeThermalStable= max(InputPowerProfile.Time_Seconds)*(InputPar.Racelaps-InputPar.ThermalStableLaps);
 
 % if contains(InputProfile, 'PowerQualification')
 % FigName= "Quali"
