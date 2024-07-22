@@ -13,10 +13,10 @@ hold on
 % plot(newTime/60,PowerKW/2)
 set(gca,'YLimitMethod','padded');set(gca,'XLimitMethod','tight');
 ylabel('kW')
-titleStr = sprintf(['RMS P_{total}=%d [kW] \n', ...
-                    'RMS P_{CHA}= %d;RMS P_{DCH}= %d '], ...
-                    round(SimResults.packPower_rms_kW),...
-                    round(rms(PowerCHA_kW)),round(rms(PowerDCH_kW)));
+titleStr = sprintf(['RMS P_{total}=%d [kW]; |P_{avg}|=%d [kW] \n', ...
+    'RMS P_{CHA}= %d;RMS P_{DCH}= %d '], ...
+    round(SimResults.packPower_rms_kW),round(SimResults.packPower_avgAbsolute_kW ),...
+    round(rms(PowerCHA_kW)),round(rms(PowerDCH_kW)));
 title(titleStr);
 ylim([-800, 800])
 
@@ -48,14 +48,14 @@ grid on;box on;hold on
 plot(SimResults.tout,SimResults.Sese_AbsoluteSOCmax_fr_fd.*100,'DisplayName','SoC')
 set(gca,'YLimitMethod','padded');set(gca,'XLimitMethod','tight');ylabel('%')
 title('',sprintf(['SOC_{init}=%.1f%%, SOC_{end}=%.1f%%,\n' ...
-                   'SOC_{max}=%.1f%%, SOC_{min}=%.1f%%,\n ' ...
-                    'V_{max}=%.2fV,V_{min}=%.2fV'], ...
-              SimResults.Sese_AbsoluteSOCmax_fr_fd(1).*100, ...
-            SimResults.Sese_AbsoluteSOCmax_fr_fd(end).*100, ...
-        max(SimResults.Sese_AbsoluteSOCmax_fr_fd.*100), ...
-          min(SimResults.Sese_AbsoluteSOCmax_fr_fd.*100),...
-          max(SimResults.Sese_maxCellVoltage_V_fd),...
-          min(SimResults.Sese_minCellVoltage_V_fd)))
+    'SOC_{max}=%.1f%%, SOC_{min}=%.1f%%,\n ' ...
+    'V_{max}=%.2fV,V_{min}=%.2fV'], ...
+    SimResults.Sese_AbsoluteSOCmax_fr_fd(1).*100, ...
+    SimResults.Sese_AbsoluteSOCmax_fr_fd(end).*100, ...
+    max(SimResults.Sese_AbsoluteSOCmax_fr_fd.*100), ...
+    min(SimResults.Sese_AbsoluteSOCmax_fr_fd.*100),...
+    max(SimResults.Sese_maxCellVoltage_V_fd),...
+    min(SimResults.Sese_minCellVoltage_V_fd)))
 xlabel('Time [s]')
 ylabel('SoC [%]')
 ylim([0 100])
@@ -81,31 +81,47 @@ xlabel('Time [s]')
 
 
 n4=nexttile(4);
-plot(SimResults.tout,SimResults.CellCurrent_A)
+plot(SimResults.tout,SimResults.CellCurrent_A,'HandleVisibility','off')
 hold on
+idxHighCurrent= SimResults.CellCurrent_A>380;
+plot(SimResults.tout(idxHighCurrent),SimResults.CellCurrent_A(idxHighCurrent),'*', 'DisplayName','Exceed current limit of 380A')
 xlabel('Time [s]')
 ylabel('Current [A]')
 grid on
-title('Cell current')
-hline=yline(216, 'r--', 'LineWidth', 2,'HandleVisibility', 'off'); % 'r-' makes the line red, and 'LineWidth', 2 makes it thicker
-text(SimResults.tout(end)*0.8, 350, 'Max pulse charge current = 216A', 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right', 'Color', 'red');
+
+hline=yline(216, '--', 'LineWidth', 2,'Color', [1, 0.5, 0],'HandleVisibility', 'off'); % 'r-' makes the line red, and 'LineWidth', 2 makes it thicker
+text(SimResults.tout(end)*0.8, 100, 'Saft tech spec= 216A', ...
+    'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right', 'Color', [1, 0.5, 0],'BackgroundColor','w');
+
+hline=yline(380, '--', 'LineWidth', 2,'Color', 'red','HandleVisibility', 'off'); % 'r-' makes the line red, and 'LineWidth', 2 makes it thicker
+text(SimResults.tout(end)*0.8, 380, ' Saft ppt for LMDh= 380A', ...
+    'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right', 'Color', 'red','BackgroundColor','w');
+
 hline=yline(-400, 'r--', 'LineWidth', 2,'HandleVisibility', 'off'); % 'r-' makes the line red, and 'LineWidth', 2 makes it thicker
 text(SimResults.tout(end)*0.8, -420, 'Max pulse discharge current =-400A', 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right', 'Color', 'red');
 ylim([-450, 450])
+legend(Location='bestoutside')
+title(sprintf('Max I CHA= %.2fA; Max I DCH= %.2fA',max(SimResults.CellCurrent_A), min(SimResults.CellCurrent_A)))
 
 
 n5=nexttile(5);
-logicalIndexThermalStable= SimResults.tout>InputPar.TimeThermalStable_Start;
-% logicalIndexThermalStable= SimResults.tout>2050.3 & SimResults.tout<2572.22;
+
 
 rmsHeatRejection_hottest = rms(SimResults.Sese_hottestCellQreject_W_fd);
 rmsHeatRejection_coldest = rms(SimResults.Sese_coldestCellQreject_W_fd);
 
 plot(SimResults.tout,SimResults.Sese_hottestCellQreject_W_fd,'r','DisplayName','Hottest Cell')
-hold on 
+hold on
 plot(SimResults.tout,SimResults.Sese_coldestCellQreject_W_fd,'b','DisplayName','Coldest Cell')
 
-plot(SimResults.tout(logicalIndexThermalStable),SimResults.Sese_hottestCellQreject_W_fd(logicalIndexThermalStable),'r*','DisplayName','Hottest Cell')
+if ~isempty(InputPar.TimeThermalStable_Start)
+logicalIndexThermalStable= SimResults.tout>InputPar.TimeThermalStable_Start;
+% logicalIndexThermalStable= SimResults.tout>2050.3 & SimResults.tout<2572.22;
+plot(SimResults.tout(logicalIndexThermalStable), ...
+    SimResults.Sese_hottestCellQreject_W_fd(logicalIndexThermalStable),'r.','DisplayName',' Thermal steady')
+end
+
+
 xlabel('Time [s]')
 ylabel('Rejected heat power [W]')
 grid on
@@ -134,11 +150,15 @@ rmsCellHeatGen_W= rms(CellHeatGen_W);
 
 plot(SimResults.tout,CellHeatGen_W)
 
-plot(SimResults.tout(logicalIndexThermalStable),CellHeatGen_W(logicalIndexThermalStable),'*')
+if ~isempty(InputPar.TimeThermalStable_Start)
+logicalIndexThermalStable= SimResults.tout>InputPar.TimeThermalStable_Start;
+% logicalIndexThermalStable= SimResults.tout>2050.3 & SimResults.tout<2572.22;
+plot(SimResults.tout(logicalIndexThermalStable),CellHeatGen_W(logicalIndexThermalStable),'.')
 
+end
 
 title(sprintf('Cell heat gen: P.rms = %.2f [W]; Energy = %.2f [kJ]', ...
-        rmsCellHeatGen_W, max(CellHeatGen_kJ)))
+    rmsCellHeatGen_W, max(CellHeatGen_kJ)))
 set(gca,'YLimitMethod','padded');
 set(gca,'XLimitMethod','tight');
 ylabel('Generated Heat Power [kW]')
@@ -157,38 +177,40 @@ legend show
 
 
 n8=nexttile(8);
-% yyaxis left
+yyaxis left
 % grid on;box on;hold on
 % plot(SimResults.tout,SimResults.packHeatGen_kJ)
 % set(gca,'YLimitMethod','padded');
 % set(gca,'XLimitMethod','tight');
 % ylabel('kJ')
 % ylabel('Generated Heat Energy [kJ]')
+plot(SimResults.tout,SimResults.Sese_hottestCellQGen_W_fd)
+ylabel('Cell Heat Gen [W]')
 
-% yyaxis right
-plot(SimResults.tout,SimResults.Sese_packQGen_kW_fd)
+yyaxis right
+plot(SimResults.tout,SimResults.Sese_hottestCellQreject_W_fd)
+ylabel('Cell Heat Rej [W]')
+grid on
 set(gca,'YLimitMethod','padded');
 set(gca,'XLimitMethod','tight');
-ylabel('kW')
-title('Pack heat generation')
-ylabel('Generated Heat Power[kW]')
-title(sprintf('Pack heat gen: P.rms = %.2f [kW]', rms(SimResults.Sese_packQGen_kW_fd)))
 
-
+title(sprintf('Hottest cell heat Gen&Rej \n Pack heat gen: P.rms = %.2f [kW]', rms(SimResults.Sese_packQGen_kW_fd)))
 
 
 % Using sgtitle to create a super title across all subplots
 titleStr = sprintf(['%s; %dS%dp\n ', ...
-                    'R_{CellToCoolant-HotCell}= %.1f [K/W] -', ...
-                    'R_{CellToCoolant-ColdCell}= %.1f [K/W] \n', ...
-                    'Temp_{CoolantIn} = %.1f [°C]- ', ...
-                    'FlowRate= %d [L/min] '], ...
-                    InputPar.ProfileName,...
-                    InputPar.Ns, InputPar.Np,...
-                    InputPar.ThermalRes_CellCool_hotcell, ...
-                    InputPar.ThermalRes_CellCool_coldcell, ...
-                    round(InputPar.CoolTIn, 1), ...
-                    round(InputPar.CoolFlowRate, 1));
+                        'R_{CellToCoolant-HotCell}= %.1f [K/W] -', ...
+                        'R_{CellToCoolant-ColdCell}= %.1f [K/W] \n', ...
+                        'Temp_{CoolantIn} = %.1f [°C]- ', ...
+                        'FlowRate= %d [L/min]; \n ',...
+                        'PowerReductionFactor =%.2f'], ...
+                        InputPar.ProfileName,...
+                        InputPar.Ns, InputPar.Np,...
+                        InputPar.ThermalRes_CellCool_hotcell, ...
+                        InputPar.ThermalRes_CellCool_coldcell, ...
+                        round(InputPar.CoolTIn, 1), ...
+                        round(InputPar.CoolFlowRate, 1),...
+                        InputPar.Racelaps_PowerFudgeFactor);
 
 linkaxes([n1, n2, n3, n4, n5, n6, n7, n8], 'x');
 

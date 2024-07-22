@@ -53,7 +53,13 @@ fig= figure('Color','w')
     [TimeEnd, dTime,PowerInput]=MissionHelper.InputProfileProcessingNewName(InputPowerProfileTotal,timeStep);
 
     % get the Time_Seconds period of the thermal stablized period 
-    TimeThermalStable= max(InputPowerProfile.Time_Seconds)*(InputPar.Racelaps-InputPar.ThermalStableLaps);
+      if  InputPar.Racelaps-InputPar.ThermalStableLaps>0 
+         TimeThermalStable= max(InputPowerProfile.Time_Seconds)*(InputPar.Racelaps-InputPar.ThermalStableLaps);
+ 
+    else
+         TimeThermalStable= []; 
+ 
+    end
 
 % if contains(InputProfile, 'PowerQualification')
 % FigName= "Quali"

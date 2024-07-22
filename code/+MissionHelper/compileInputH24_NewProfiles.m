@@ -41,7 +41,7 @@ if contains(InputProfileName, 'Quali')
 else contains(InputProfile, 'Race')
     SimResults.folderName = InputProfileName;
     
-    SOCstart           = (0.4);
+    SOCstart           = (0.7);
      InputPar.Racelaps=10;
 
      [TimeEnd, dTime,PowerInput,TimeThermalStable]=MissionHelper.CreateMultipleLapsNewName(PowerInput,InputPar,InputProfileName); 

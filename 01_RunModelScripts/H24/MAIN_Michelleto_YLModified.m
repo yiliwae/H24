@@ -4,7 +4,7 @@ close all
 clear all
 
 %% Load the data 
-DataLakeFolder= {'C:\Users\Yi.Li\OneDrive - WAE\General - Battery Performance Team\YL\Data Lake\PackEOLnData\Micheletto'};
+DataLakeFolder= {'C:\Users\Yi.Li\OneDrive - Fortescue Zero Ltd\General - Battery Performance Team\YL\Data Lake\PackEOLnData\Micheletto'};
 % FileName= 'Monza 30C\230718164401.mat';
 % FileName= '240426142416.mat'
 FileName= '240508131147.mat';
@@ -42,7 +42,7 @@ CoolantInletTempInput=MissionHelper.formTimeseriesData(CoolantIn.Time, CoolantIn
 
 TimeEnd= double(TestData.Time_Seconds(end)+0.01);
 %%  Load Bus
-load([pwd,'\Data\BusObjects.mat'])
+load('Data\BusObjects.mat')
 
 % Pack Configuration
 Ns = 216;
